@@ -17,6 +17,26 @@ typedef struct {
 	network net;
 } yolo_obj;
 
+image ipl_to_image(IplImage* src)
+{
+    unsigned char *data = (unsigned char *)src->imageData;
+    int h = src->height;
+    int w = src->width;
+    int c = src->nChannels;
+    int step = src->widthStep;
+    image out = make_image(w, h, c);
+    int i, j, k, count=0;;
+
+    for(k= 0; k < c; ++k){
+        for(i = 0; i < h; ++i){
+            for(j = 0; j < w; ++j){
+                out.data[count++] = data[i*step + j*c + k]/255.;
+            }
+        }
+    }
+    return out;
+}
+
 void get_detection_info(image im, int num, float thresh, box *boxes, float **probs, int classes, char **names, list *output)
 {
 	int i;
@@ -88,21 +108,18 @@ void yolo_cleanup(yolo_handle handle)
 	}
 }
 
-detection_info **yolo_test(yolo_handle handle, char *filename, float thresh, float hier_thresh, int *num)
+detection_info **yolo_test(yolo_handle handle, IplImage *src, float thresh, float hier_thresh, int *num)
 {
 	yolo_obj *obj = (yolo_obj *)handle;
 
-	char input[256];
-	strncpy(input, filename, sizeof(input));
-
-	image im = load_image_color(input,0,0);
+	image im = ipl_to_image(src);
 	image sized = resize_image(im, obj->net.w, obj->net.h);
 
 	float *X = sized.data;
 	clock_t time;
 	time=clock();
 	network_predict(obj->net, X);
-	printf("%s: Predicted in %f seconds.\n", input, sec(clock()-time));
+	printf("Predicted in %f seconds.\n", sec(clock()-time));
 
 	layer l = obj->net.layers[obj->net.n-1];
 	get_region_boxes(l, 1, 1, thresh, obj->probs, obj->boxes, 0, 0, hier_thresh);

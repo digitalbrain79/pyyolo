@@ -32,15 +32,15 @@ static PyObject *pyyolo_cleanup(PyObject *self, PyObject *args)
 
 static PyObject *pyyolo_test(PyObject *self, PyObject *args)
 {
-	char *filename;
+	IplImage *src;
 	float thresh;
 	float hier_thresh;
 
-	if (!PyArg_ParseTuple(args, "sff", &filename, &thresh, &hier_thresh))
+	if (!PyArg_ParseTuple(args, "sff", &src, &thresh, &hier_thresh))
 		return NULL;
 
 	int num = 0;
-	detection_info **info = yolo_test(g_handle, filename, thresh, hier_thresh, &num);
+	detection_info **info = yolo_test(g_handle, src, thresh, hier_thresh, &num);
 	if (info == NULL) {
 		PyErr_SetString(PyyoloError, "Testing YOLO failed");
 		return Py_None;
