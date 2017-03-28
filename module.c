@@ -1,8 +1,28 @@
 #include <Python.h>
 #include "libyolo.h"
+#include "./darknet/src/image.h"
+#include "opencv2/highgui/highgui_c.h"
+#include "opencv2/imgproc/imgproc_c.h"
 
 static PyObject *PyyoloError;
 static yolo_handle g_handle = NULL;
+static image img;
+
+static PyObject *pyyolo_fetch_frame(PyObject *self, PyObject *args)
+{
+	img = fetch_frame();
+	return Py_None;
+}
+
+static PyObject *pyyolo_save_image(PyObject *self, PyObject *args)
+{
+	char *savedir;
+
+	if (!PyArg_ParseTuple(args, "s", &savedir))
+		return NULL;
+	save_image(img, savedir);
+	return Py_None;
+}
 
 static PyObject *pyyolo_init(PyObject *self, PyObject *args)
 {
@@ -30,17 +50,16 @@ static PyObject *pyyolo_cleanup(PyObject *self, PyObject *args)
 	return Py_None;
 }
 
-static PyObject *pyyolo_test(PyObject *self, PyObject *args)
+static PyObject *pyyolo_detect(PyObject *self, PyObject *args)
 {
-	IplImage *src;
 	float thresh;
 	float hier_thresh;
 
-	if (!PyArg_ParseTuple(args, "sff", &src, &thresh, &hier_thresh))
+	if (!PyArg_ParseTuple(args, "ff", &thresh, &hier_thresh))
 		return NULL;
 
 	int num = 0;
-	detection_info **info = yolo_test(g_handle, src, thresh, hier_thresh, &num);
+	detection_info **info = yolo_detect(g_handle, img, thresh, hier_thresh, &num);
 	if (info == NULL) {
 		PyErr_SetString(PyyoloError, "Testing YOLO failed");
 		return Py_None;
@@ -66,9 +85,11 @@ static PyObject *pyyolo_test(PyObject *self, PyObject *args)
 }
 
 static PyMethodDef PyyoloMethods[] = {
+	{"fetch_frame",  pyyolo_fetch_frame, METH_VARARGS, "Fetch frame from Cam."},
+	{"save_image",  pyyolo_save_image, METH_VARARGS, "Save the current image."},
 	{"init",  pyyolo_init, METH_VARARGS, "Initialize YOLO."},
 	{"cleanup",  pyyolo_cleanup, METH_VARARGS, "Cleanup YOLO."},
-	{"test",  pyyolo_test, METH_VARARGS, "Test image."},
+	{"detect",  pyyolo_detect, METH_VARARGS, "Test image."},
 	{NULL, NULL, 0, NULL}        /* Sentinel */
 };
 

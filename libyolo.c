@@ -8,6 +8,12 @@
 #include "region_layer.h"
 #include "utils.h"
 #include "libyolo.h"
+#include "image.h"
+#include "opencv2/highgui/highgui_c.h"
+#include "opencv2/imgproc/imgproc_c.h"
+
+static CvCapture * cap;
+image get_image_from_stream(CvCapture *cap);
 
 typedef struct {
 	char **names;
@@ -16,26 +22,6 @@ typedef struct {
 	float **probs;
 	network net;
 } yolo_obj;
-
-image ipl_to_image(IplImage* src)
-{
-    unsigned char *data = (unsigned char *)src->imageData;
-    int h = src->height;
-    int w = src->width;
-    int c = src->nChannels;
-    int step = src->widthStep;
-    image out = make_image(w, h, c);
-    int i, j, k, count=0;;
-
-    for(k= 0; k < c; ++k){
-        for(i = 0; i < h; ++i){
-            for(j = 0; j < w; ++j){
-                out.data[count++] = data[i*step + j*c + k]/255.;
-            }
-        }
-    }
-    return out;
-}
 
 void get_detection_info(image im, int num, float thresh, box *boxes, float **probs, int classes, char **names, list *output)
 {
@@ -108,11 +94,19 @@ void yolo_cleanup(yolo_handle handle)
 	}
 }
 
-detection_info **yolo_test(yolo_handle handle, IplImage *src, float thresh, float hier_thresh, int *num)
+image fetch_frame()
+{
+	cap = cvCaptureFromCAM(0);
+	image im = get_image_from_stream(cap);
+	if(!im.data){
+        error("Stream closed.");
+    }
+    return im;
+}
+
+detection_info **yolo_detect(yolo_handle handle, image im, float thresh, float hier_thresh, int *num)
 {
 	yolo_obj *obj = (yolo_obj *)handle;
-
-	image im = ipl_to_image(src);
 	image sized = resize_image(im, obj->net.w, obj->net.h);
 
 	float *X = sized.data;
