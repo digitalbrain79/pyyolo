@@ -1,7 +1,7 @@
-GPU=0
-CUDNN=0
-OPENCV=1
+GPU=1
+CUDNN=1
 DEBUG=0
+OPENCV=0
 
 ARCH= -gencode arch=compute_20,code=[sm_20,sm_21] \
       -gencode arch=compute_30,code=sm_30 \
@@ -24,18 +24,18 @@ COMMON=
 CFLAGS=-Wall -Wfatal-errors -Wno-unused-result -fPIC
 CFLAGS+=-I$(VPATH)
 
+ifeq ($(DEBUG), 1) 
+OPTS=-O0 -g
+endif
+
+CFLAGS+=$(OPTS)
+
 ifeq ($(OPENCV), 1) 
 COMMON+= -DOPENCV
 CFLAGS+= -DOPENCV
 LDFLAGS+= `pkg-config --libs opencv` 
 COMMON+= `pkg-config --cflags opencv` 
 endif
-
-ifeq ($(DEBUG), 1) 
-OPTS=-O0 -g
-endif
-
-CFLAGS+=$(OPTS)
 
 ifeq ($(GPU), 1) 
 COMMON+= -DGPU -I/usr/local/cuda/include/

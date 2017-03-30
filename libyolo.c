@@ -8,12 +8,6 @@
 #include "region_layer.h"
 #include "utils.h"
 #include "libyolo.h"
-#include "image.h"
-#include "opencv2/highgui/highgui_c.h"
-#include "opencv2/imgproc/imgproc_c.h"
-
-static CvCapture * cap;
-image get_image_from_stream(CvCapture *cap);
 
 typedef struct {
 	char **names;
@@ -94,16 +88,6 @@ void yolo_cleanup(yolo_handle handle)
 	}
 }
 
-image fetch_frame()
-{
-	cap = cvCaptureFromCAM(0);
-	image im = get_image_from_stream(cap);
-	if(!im.data){
-        error("Stream closed.");
-    }
-    return im;
-}
-
 detection_info **yolo_detect(yolo_handle handle, image im, float thresh, float hier_thresh, int *num)
 {
 	yolo_obj *obj = (yolo_obj *)handle;
@@ -113,7 +97,42 @@ detection_info **yolo_detect(yolo_handle handle, image im, float thresh, float h
 	clock_t time;
 	time=clock();
 	network_predict(obj->net, X);
-	printf("Predicted in %f seconds.\n", sec(clock()-time));
+	printf("Cam frame predicted in %f seconds.\n", sec(clock()-time));
+
+	layer l = obj->net.layers[obj->net.n-1];
+	get_region_boxes(l, 1, 1, thresh, obj->probs, obj->boxes, 0, 0, hier_thresh);
+	if (l.softmax_tree && obj->nms) do_nms_obj(obj->boxes, obj->probs, l.w*l.h*l.n, l.classes, obj->nms);
+	else if (obj->nms) do_nms_sort(obj->boxes, obj->probs, l.w*l.h*l.n, l.classes, obj->nms);
+
+	list *output = make_list();
+	get_detection_info(im, l.w*l.h*l.n, thresh, obj->boxes, obj->probs, l.classes, obj->names, output);
+	detection_info **info = (detection_info **)list_to_array(output);
+	*num = output->size;
+
+	free_list(output);
+	// free_image(im);
+	free_image(sized);
+
+	return info;
+}
+
+detection_info **yolo_test(yolo_handle handle, char *filename, float thresh, float hier_thresh, int *num)
+{
+	yolo_obj *obj = (yolo_obj *)handle;
+
+	char input[256];
+	strncpy(input, filename, sizeof(input));
+
+	image im = load_image_color(input,0,0);
+	char name[7] = "pyyoloa";
+	save_image(im, name);
+	image sized = resize_image(im, obj->net.w, obj->net.h);
+
+	float *X = sized.data;
+	clock_t time;
+	time=clock();
+	network_predict(obj->net, X);
+	printf("%s: Predicted in %f seconds.\n", input, sec(clock()-time));
 
 	layer l = obj->net.layers[obj->net.n-1];
 	get_region_boxes(l, 1, 1, thresh, obj->probs, obj->boxes, 0, 0, hier_thresh);

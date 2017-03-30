@@ -15,7 +15,6 @@ typedef struct {
 yolo_handle yolo_init(char *datacfg, char *cfgfile, char *weightfile);
 void yolo_cleanup(yolo_handle handle);
 detection_info **yolo_detect(yolo_handle handle, image im, float thresh, float hier_thresh, int *num);
-void save_image(image p, const char *name);
-image fetch_frame();
+detection_info **yolo_test(yolo_handle handle, char *filename, float thresh, float hier_thresh, int *num);
 
 #endif // LIBYOLO_H
