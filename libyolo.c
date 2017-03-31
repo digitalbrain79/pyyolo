@@ -124,8 +124,6 @@ detection_info **yolo_test(yolo_handle handle, char *filename, float thresh, flo
 	strncpy(input, filename, sizeof(input));
 
 	image im = load_image_color(input,0,0);
-	char name[7] = "pyyoloa";
-	save_image(im, name);
 	image sized = resize_image(im, obj->net.w, obj->net.h);
 
 	float *X = sized.data;
