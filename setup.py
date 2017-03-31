@@ -1,7 +1,7 @@
 from distutils.core import setup, Extension
 
 module = Extension('pyyolo',
-	library_dirs=['.', '/usr/local/cuda/lib64'],
+	library_dirs=['.', '/usr/local/cuda/lib64', '/usr/local/'],
 	libraries=['yolo', 'cuda', 'cudart', 'cublas', 'curand', 'cudnn'],
 	sources = ['module.c'])
 
