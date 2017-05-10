@@ -74,12 +74,13 @@ static PyObject *pyyolo_detect(PyObject *self, PyObject *args)
 	int i;
 
 	for (i = 0; i < num; i++) {
-		dict = Py_BuildValue("{s:s,s:i,s:i,s:i,s:i}",
+		dict = Py_BuildValue("{s:s,s:i,s:i,s:i,s:i,s:f}",
 			"class", info[i]->name,
 			"left", info[i]->left,
 			"right", info[i]->right,
 			"top", info[i]->top,
-			"bottom", info[i]->bottom);
+			"bottom", info[i]->bottom,
+			"prob", info[i]->prob);
 		PyList_SetItem(list, i, dict);
 		free(info[i]);
 	}
@@ -109,12 +110,13 @@ static PyObject *pyyolo_test(PyObject *self, PyObject *args)
 	int i;
 
 	for (i = 0; i < num; i++) {
-		dict = Py_BuildValue("{s:s,s:i,s:i,s:i,s:i}",
+		dict = Py_BuildValue("{s:s,s:i,s:i,s:i,s:i,s:f}",
 			"class", info[i]->name,
 			"left", info[i]->left,
 			"right", info[i]->right,
 			"top", info[i]->top,
-			"bottom", info[i]->bottom);
+			"bottom", info[i]->bottom,
+			"prob", info[i]->prob);
 		PyList_SetItem(list, i, dict);
 		free(info[i]);
 	}

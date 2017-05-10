@@ -43,6 +43,7 @@ void get_detection_info(image im, int num, float thresh, box *boxes, float **pro
 			info->right = right;
 			info->top = top;
 			info->bottom = bot;
+			info->prob = prob;
 			list_insert(output, info);
 		}
 	}
