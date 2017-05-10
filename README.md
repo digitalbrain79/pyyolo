@@ -2,12 +2,11 @@
 pyyolo is a simple wrapper for YOLO.
 
 ## Building
-1. git clone https://github.com/thomaspark-pkj/pyyolo.git
-2. In pyyolo directory, git clone https://github.com/pjreddie/darknet.git
-3. Edit Makefile to use GPU.
-4. make
-5. python setup.py build
-6. sudo python setup.py install
+1. git clone --recursive https://github.com/thomaspark-pkj/pyyolo.git
+2. Edit Makefile to use GPU.
+3. make
+4. python setup.py build
+5. sudo python setup.py install
 
 ## Test
 Edit parameters in example.py
