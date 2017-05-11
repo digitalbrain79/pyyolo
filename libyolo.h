@@ -10,6 +10,7 @@ typedef struct {
 	int right;
 	int top;
 	int bottom;
+	float prob;
 } detection_info;
 
 yolo_handle yolo_init(char *datacfg, char *cfgfile, char *weightfile);
