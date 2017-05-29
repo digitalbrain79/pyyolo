@@ -125,7 +125,7 @@ static PyObject *pyyolo_test(PyObject *self, PyObject *args)
 	return list;
 }
 
-static PyMethodDef PyyoloMethods[] = {
+static PyMethodDef pyyolo_methods[] = {
 	{"init",  pyyolo_init, METH_VARARGS, "Initialize YOLO."},
 	{"cleanup",  pyyolo_cleanup, METH_VARARGS, "Cleanup YOLO."},
 	{"detect",  pyyolo_detect, METH_VARARGS, "Test image."},
@@ -133,14 +133,39 @@ static PyMethodDef PyyoloMethods[] = {
 	{NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
+#if PY_MAJOR_VERSION >= 3
+static struct PyModuleDef pyyolo_module =
+{
+        PyModuleDef_HEAD_INIT,
+        "pyyolo",
+        "",
+        -1,
+        pyyolo_methods
+};
+
+PyMODINIT_FUNC PyInit_pyyolo(void)
+{
+	PyObject *m;
+
+	m = PyModule_Create(&pyyolo_module);
+	if (m == NULL) return;
+
+	PyyoloError = PyErr_NewException("pyyolo.error", NULL, NULL);
+	Py_INCREF(PyyoloError);
+	PyModule_AddObject(m, "error", PyyoloError);
+
+	return m;
+}
+#else
 PyMODINIT_FUNC initpyyolo(void)
 {
 	PyObject *m;
 
-	m = Py_InitModule("pyyolo", PyyoloMethods);
+	m = Py_InitModule("pyyolo", pyyolo_methods);
 	if (m == NULL) return;
 
 	PyyoloError = PyErr_NewException("pyyolo.error", NULL, NULL);
 	Py_INCREF(PyyoloError);
 	PyModule_AddObject(m, "error", PyyoloError);
 }
+#endif
