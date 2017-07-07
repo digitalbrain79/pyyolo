@@ -12,8 +12,9 @@ hier_thresh = 0.5
 cam = cv2.VideoCapture(-1)
 ret_val, img = cam.read()
 print(ret_val)
-ret_val = cv2.imwrite(filename,img)
-print(ret_val)
+if ret_val:
+    ret_val = cv2.imwrite(filename,img)
+    print(ret_val)
 
 pyyolo.init(datacfg, cfgfile, weightfile)
 
