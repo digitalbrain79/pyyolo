@@ -92,7 +92,7 @@ void yolo_cleanup(yolo_handle handle)
 detection_info **yolo_detect(yolo_handle handle, image im, float thresh, float hier_thresh, int *num)
 {
 	yolo_obj *obj = (yolo_obj *)handle;
-	image sized = resize_image(im, obj->net.w, obj->net.h);
+	image sized = letterbox_image(im, obj->net.w, obj->net.h);
 
 	float *X = sized.data;
 	clock_t time;
@@ -101,9 +101,8 @@ detection_info **yolo_detect(yolo_handle handle, image im, float thresh, float h
 	printf("Cam frame predicted in %f seconds.\n", sec(clock()-time));
 
 	layer l = obj->net.layers[obj->net.n-1];
-	get_region_boxes(l, 1, 1, obj->net.w, obj->net.h, thresh, obj->probs, obj->boxes, 0, 0, hier_thresh, 0);  // get_region_boxes(l, 1, 1, thresh, obj->probs, obj->boxes, 0, 0, hier_thresh);
-	if (l.softmax_tree && obj->nms) do_nms_obj(obj->boxes, obj->probs, l.w*l.h*l.n, l.classes, obj->nms);
-	else if (obj->nms) do_nms_sort(obj->boxes, obj->probs, l.w*l.h*l.n, l.classes, obj->nms);
+	get_region_boxes(l, im.w, im.h, obj->net.w, obj->net.h, thresh, obj->probs, obj->boxes, NULL, 0, 0, hier_thresh, 1);
+	if (obj->nms) do_nms_obj(obj->boxes, obj->probs, l.w*l.h*l.n, l.classes, obj->nms);
 
 	list *output = make_list();
 	get_detection_info(im, l.w*l.h*l.n, thresh, obj->boxes, obj->probs, l.classes, obj->names, output);
@@ -125,7 +124,7 @@ detection_info **yolo_test(yolo_handle handle, char *filename, float thresh, flo
 	strncpy(input, filename, sizeof(input));
 
 	image im = load_image_color(input,0,0);
-	image sized = resize_image(im, obj->net.w, obj->net.h);
+	image sized = letterbox_image(im, obj->net.w, obj->net.h);
 
 	float *X = sized.data;
 	clock_t time;
@@ -134,9 +133,8 @@ detection_info **yolo_test(yolo_handle handle, char *filename, float thresh, flo
 	printf("%s: Predicted in %f seconds.\n", input, sec(clock()-time));
 
 	layer l = obj->net.layers[obj->net.n-1];
-	get_region_boxes(l, 1, 1, obj->net.w, obj->net.h, thresh, obj->probs, obj->boxes, 0, 0, hier_thresh, 0);  // get_region_boxes(l, 1, 1, thresh, obj->probs, obj->boxes, 0, 0, hier_thresh);
-	if (l.softmax_tree && obj->nms) do_nms_obj(obj->boxes, obj->probs, l.w*l.h*l.n, l.classes, obj->nms);
-	else if (obj->nms) do_nms_sort(obj->boxes, obj->probs, l.w*l.h*l.n, l.classes, obj->nms);
+	get_region_boxes(l, im.w, im.h, obj->net.w, obj->net.h, thresh, obj->probs, obj->boxes, NULL, 0, 0, hier_thresh, 1);
+	if (obj->nms) do_nms_obj(obj->boxes, obj->probs, l.w*l.h*l.n, l.classes, obj->nms);
 
 	list *output = make_list();
 	get_detection_info(im, l.w*l.h*l.n, thresh, obj->boxes, obj->probs, l.classes, obj->names, output);
