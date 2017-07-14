@@ -10,6 +10,7 @@
 #include "libyolo.h"
 
 typedef struct {
+	char darknet_path[1024];
 	char **names;
 	float nms;
 	box *boxes;
@@ -49,13 +50,16 @@ void get_detection_info(image im, int num, float thresh, box *boxes, float **pro
 	}
 }
 
-yolo_handle yolo_init(char *datacfg, char *cfgfile, char *weightfile)
+yolo_handle yolo_init(char *darknet_path, char *datacfg, char *cfgfile, char *weightfile)
 {
 	yolo_obj *obj = (yolo_obj *)malloc(sizeof(yolo_obj));
 	if (!obj) return NULL;
 	memset(obj, 0, sizeof(yolo_obj));
 
-	chdir("./darknet");
+	char cur_dir[1024];
+	strncpy(obj->darknet_path, darknet_path, sizeof(obj->darknet_path));
+	getcwd(cur_dir, sizeof(cur_dir));
+	chdir(darknet_path);
 	list *options = read_data_cfg(datacfg);
 	char *name_list = option_find_str(options, "names", "data/names.list");
 	obj->names = get_labels(name_list);
@@ -74,6 +78,7 @@ yolo_handle yolo_init(char *datacfg, char *cfgfile, char *weightfile)
 	obj->boxes = calloc(l.w*l.h*l.n, sizeof(box));
 	obj->probs = calloc(l.w*l.h*l.n, sizeof(float *));
 	for(j = 0; j < l.w*l.h*l.n; ++j) obj->probs[j] = calloc(l.classes + 1, sizeof(float *));
+	chdir(cur_dir);
 
 	return (yolo_handle)obj;
 }

@@ -10,14 +10,15 @@ static yolo_handle g_handle = NULL;
 
 static PyObject *pyyolo_init(PyObject *self, PyObject *args)
 {
+	char *darknet_path;
 	char *datacfg;
 	char *cfgfile;
 	char *weightfile;
 
-	if (!PyArg_ParseTuple(args, "sss", &datacfg, &cfgfile, &weightfile))
+	if (!PyArg_ParseTuple(args, "ssss", &darknet_path, &datacfg, &cfgfile, &weightfile))
 		return NULL;
 
-	g_handle = yolo_init(datacfg, cfgfile, weightfile);
+	g_handle = yolo_init(darknet_path, datacfg, cfgfile, weightfile);
 	if (!g_handle) {
 		PyErr_SetString(PyyoloError, "Initialzing YOLO failed");
 		return Py_None;
