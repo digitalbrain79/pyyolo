@@ -21,7 +21,7 @@ pyyolo.init(darknet_path, datacfg, cfgfile, weightfile)
 
 # from file
 print('----- test original C using a file')
-outputs = pyyolo.test(filename, thresh, hier_thresh)
+outputs = pyyolo.test(filename, thresh, hier_thresh, 0)
 for output in outputs:
 	print(output)
 

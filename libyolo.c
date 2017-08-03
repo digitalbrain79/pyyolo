@@ -121,7 +121,7 @@ detection_info **yolo_detect(yolo_handle handle, image im, float thresh, float h
 	return info;
 }
 
-detection_info **yolo_test(yolo_handle handle, char *filename, float thresh, float hier_thresh, int *num)
+detection_info **yolo_test(yolo_handle handle, char *filename, float thresh, float hier_thresh, int *num, float **feature_map, int *map_size)
 {
 	yolo_obj *obj = (yolo_obj *)handle;
 
@@ -135,6 +135,8 @@ detection_info **yolo_test(yolo_handle handle, char *filename, float thresh, flo
 	clock_t time;
 	time=clock();
 	network_predict(obj->net, X);
+	*feature_map = obj->net.output;
+	*map_size = obj->net.outputs;
 	printf("%s: Predicted in %f seconds.\n", input, sec(clock()-time));
 
 	layer l = obj->net.layers[obj->net.n-1];

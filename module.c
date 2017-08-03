@@ -95,21 +95,30 @@ static PyObject *pyyolo_test(PyObject *self, PyObject *args)
 	char *filename;
 	float thresh;
 	float hier_thresh;
+	float *feature_map = NULL;
+	int map_size = 0;
+	int return_map = 0;
 
-	if (!PyArg_ParseTuple(args, "sff", &filename, &thresh, &hier_thresh))
+	if (!PyArg_ParseTuple(args, "sffi", &filename, &thresh, &hier_thresh, &return_map))
 		return NULL;
 
 	int num = 0;
-	detection_info **info = yolo_test(g_handle, filename, thresh, hier_thresh, &num);
+	detection_info **info = yolo_test(g_handle, filename, thresh, hier_thresh, &num, &feature_map, &map_size);
 	if (info == NULL) {
 		PyErr_SetString(PyyoloError, "Testing YOLO failed");
 		return Py_None;
 	}
 
 	PyObject *dict = NULL;
-	PyObject *list = PyList_New(num);
-	int i;
+	PyObject *list = NULL;
 
+	if (return_map) {
+		list = PyList_New(num + 1);
+	} else {
+		list = PyList_New(num);
+	}
+
+	int i;
 	for (i = 0; i < num; i++) {
 		dict = Py_BuildValue("{s:s,s:i,s:i,s:i,s:i,s:f}",
 			"class", info[i]->name,
@@ -122,6 +131,15 @@ static PyObject *pyyolo_test(PyObject *self, PyObject *args)
 		free(info[i]);
 	}
 	free(info);
+
+	if (return_map) {
+		import_array();
+		npy_intp dims[] = {map_size};
+		PyObject *data = PyArray_SimpleNewFromData(1, dims, NPY_FLOAT, feature_map);
+		Py_INCREF(data);
+		dict = Py_BuildValue("{s:O}", "feature_map", data);
+		PyList_SetItem(list, i, dict);
+	}
 
 	return list;
 }
