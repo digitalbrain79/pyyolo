@@ -50,15 +50,15 @@ static PyObject *pyyolo_detect(PyObject *self, PyObject *args)
 	// convert (copy) PyArrayObject(float32) to float []
 	// option 1
 
-	float data[w*h*c];
-	int k;
-	for (k = 0; k < w*h*c; k++) {
-		data[k] = *((float*) PyArray_GETPTR1(array, k));
-	}
+	// float data[w*h*c];
+	// int k;
+	// for (k = 0; k < w*h*c; k++) {
+	//	data[k] = *((float*) PyArray_GETPTR1(array, k));
+	// }
 
 	// option 2
-	// float *data;
-	// data = (float*) PyArray_GETPTR1(array, 0);
+	float *data;
+	data = (float*) PyArray_GETPTR1(array, 0);
 	
     // The below should work, data is a ptr to a c array
 	image img = float_to_image(w, h, c, data);
