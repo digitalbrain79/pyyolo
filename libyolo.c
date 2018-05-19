@@ -15,7 +15,7 @@ typedef struct {
 	float nms;
 	box *boxes;
 	float **probs;
-	network net;
+	network *net;
 } yolo_obj;
 
 void get_detection_info(image im, int num, float thresh, box *boxes, float **probs, int classes, char **names, list *output)
@@ -64,17 +64,17 @@ yolo_handle yolo_init(char *darknet_path, char *datacfg, char *cfgfile, char *we
 	char *name_list = option_find_str(options, "names", "data/names.list");
 	obj->names = get_labels(name_list);
 
-	obj->net = parse_network_cfg(cfgfile);
-	if(weightfile){
-		load_weights(&obj->net, weightfile);
-	}
-	set_batch_network(&obj->net, 1);
+	obj->net = load_network(cfgfile, weightfile, 0);
+	printf("Load netork. \n")
+	set_batch_network(obj->net, 1);
+	printf("Set batch network. \n")
+
 	srand(2222222);
 
 	int j;
 	obj->nms=.4;
 
-	layer l = obj->net.layers[obj->net.n-1];
+	layer l = obj->net->layers[obj->net->n-1];
 	obj->boxes = calloc(l.w*l.h*l.n, sizeof(box));
 	obj->probs = calloc(l.w*l.h*l.n, sizeof(float *));
 	for(j = 0; j < l.w*l.h*l.n; ++j) obj->probs[j] = calloc(l.classes + 1, sizeof(float *));
@@ -87,7 +87,7 @@ void yolo_cleanup(yolo_handle handle)
 {
 	yolo_obj *obj = (yolo_obj *)handle;
 	if (obj) {
-		layer l = obj->net.layers[obj->net.n-1];
+		layer l = obj->net->layers[obj->net->n-1];
 		free(obj->boxes);
 		free_ptrs((void **)obj->probs, l.w*l.h*l.n);
 		free(obj);
@@ -97,7 +97,7 @@ void yolo_cleanup(yolo_handle handle)
 detection_info **yolo_detect(yolo_handle handle, image im, float thresh, float hier_thresh, int *num)
 {
 	yolo_obj *obj = (yolo_obj *)handle;
-	image sized = letterbox_image(im, obj->net.w, obj->net.h);
+	image sized = letterbox_image(im, obj->net->w, obj->net->h);
 
 	float *X = sized.data;
 	clock_t time;
@@ -105,8 +105,8 @@ detection_info **yolo_detect(yolo_handle handle, image im, float thresh, float h
 	network_predict(obj->net, X);
 	printf("Cam frame predicted in %f seconds.\n", sec(clock()-time));
 
-	layer l = obj->net.layers[obj->net.n-1];
-	get_region_boxes(l, im.w, im.h, obj->net.w, obj->net.h, thresh, obj->probs, obj->boxes, NULL, 0, 0, hier_thresh, 1);
+	layer l = obj->net->layers[obj->net->n-1];
+	get_region_boxes(l, im.w, im.h, obj->net->w, obj->net->h, thresh, obj->probs, obj->boxes, NULL, 0, 0, hier_thresh, 1);
 	if (obj->nms) do_nms_obj(obj->boxes, obj->probs, l.w*l.h*l.n, l.classes, obj->nms);
 
 	list *output = make_list();
@@ -129,18 +129,18 @@ detection_info **yolo_test(yolo_handle handle, char *filename, float thresh, flo
 	strncpy(input, filename, sizeof(input));
 
 	image im = load_image_color(input,0,0);
-	image sized = letterbox_image(im, obj->net.w, obj->net.h);
+	image sized = letterbox_image(im, obj->net->w, obj->net->h);
 
 	float *X = sized.data;
 	clock_t time;
 	time=clock();
 	network_predict(obj->net, X);
-	*feature_map = obj->net.output;
-	*map_size = obj->net.outputs;
+	*feature_map = obj->net->output;
+	*map_size = obj->net->outputs;
 	printf("%s: Predicted in %f seconds.\n", input, sec(clock()-time));
 
-	layer l = obj->net.layers[obj->net.n-1];
-	get_region_boxes(l, im.w, im.h, obj->net.w, obj->net.h, thresh, obj->probs, obj->boxes, NULL, 0, 0, hier_thresh, 1);
+	layer l = obj->net->layers[obj->net->n-1];
+	get_region_boxes(l, im.w, im.h, obj->net->w, obj->net->h, thresh, obj->probs, obj->boxes, NULL, 0, 0, hier_thresh, 1);
 	if (obj->nms) do_nms_obj(obj->boxes, obj->probs, l.w*l.h*l.n, l.classes, obj->nms);
 
 	list *output = make_list();

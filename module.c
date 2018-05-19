@@ -132,14 +132,14 @@ static PyObject *pyyolo_test(PyObject *self, PyObject *args)
 	}
 	free(info);
 
-	if (return_map) {
+	/* if (return_map) {
 		import_array();
 		npy_intp dims[] = {map_size};
 		PyObject *data = PyArray_SimpleNewFromData(1, dims, NPY_FLOAT, feature_map);
 		Py_INCREF(data);
 		dict = Py_BuildValue("{s:O}", "feature_map", data);
 		PyList_SetItem(list, i, dict);
-	}
+	} */
 
 	return list;
 }
