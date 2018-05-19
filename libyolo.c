@@ -67,7 +67,7 @@ yolo_handle yolo_init(char *darknet_path, char *datacfg, char *cfgfile, char *we
 	obj->net = load_network(cfgfile, weightfile, 0);
 	printf("Load netork. \n");
 	set_batch_network(obj->net, 1);
-	printf("Set batch network. \n")
+	printf("Set batch network. \n");
 
 	srand(2222222);
 
