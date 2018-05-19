@@ -2,7 +2,7 @@
 pyyolo is a simple wrapper for YOLO.
 
 ## Building
-1. git clone --recursive https://github.com/thomaspark-pkj/pyyolo.git
+1. git clone --recursive git@github.com:rayhou0710/pyyolo.git
 2. (optional) Set GPU=1 and CUDNN=1 in Makefile to use GPU.
 3. make
 4. rm -rf build
