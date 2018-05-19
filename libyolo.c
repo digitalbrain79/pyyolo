@@ -65,7 +65,7 @@ yolo_handle yolo_init(char *darknet_path, char *datacfg, char *cfgfile, char *we
 	obj->names = get_labels(name_list);
 
 	obj->net = load_network(cfgfile, weightfile, 0);
-	printf("Load netork. \n")
+	printf("Load netork. \n");
 	set_batch_network(obj->net, 1);
 	printf("Set batch network. \n")
 
