@@ -1,5 +1,5 @@
 # pyyolo
-pyyolo is a simple wrapper for YOLO(compatible with YOLOv3).
+pyyolo is a simple wrapper for YOLO (compatible with YOLOv3).
 
 ## Building
 1. git clone --recursive git@github.com:rayhou0710/pyyolo.git
