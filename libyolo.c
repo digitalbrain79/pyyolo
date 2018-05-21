@@ -14,7 +14,6 @@ typedef struct {
 	char darknet_path[1024];
 	char **names;
 	float nms;
-	// detection *dets;
 	// box *boxes;
 	// float **probs;
 	network *net;
@@ -86,7 +85,6 @@ yolo_handle yolo_init(char *darknet_path, char *datacfg, char *cfgfile, char *we
 	obj->nms=.45;
 
 	//layer l = obj->net->layers[obj->net->n-1];
-	//obj->dets = calloc(l.w*l.h*l.n, sizeof(detection));
 	//obj->boxes = calloc(l.w*l.h*l.n, sizeof(box));
 	//obj->probs = calloc(l.w*l.h*l.n, sizeof(float *));
 	//for(j = 0; j < l.w*l.h*l.n; ++j) obj->probs[j] = calloc(l.classes + 1, sizeof(float *));
@@ -157,12 +155,13 @@ detection_info **yolo_test(yolo_handle handle, char *filename, float thresh, flo
 	printf("%s: Predicted in %f seconds.\n", input, sec(clock()-time));
 
 	layer l = obj->net->layers[obj->net->n-1];
-	int nboxes = 0;
+	int nboxes = 0; // nboxes = l.w*l.h*l.n
 	detection *dets = get_network_boxes(obj->net, im.w, im.h, thresh, hier_thresh, 0, 1, &nboxes);
 	if (obj->nms) do_nms_sort(dets, nboxes, l.classes, obj->nms);
-	
+	printf("%d nboxes\n", nboxes);
+	printf("%d 2\n", l.w*l.h*l.n);
 	list *output = make_list();
-	get_detection_info(im, nboxes, thresh, dets, l.classes, obj->names, output); // nboxes = l.w*l.h*l.n
+	get_detection_info(im, nboxes, thresh, dets, l.classes, obj->names, output); 
 	detection_info **info = (detection_info **)list_to_array(output);
 	*num = output->size;
 
