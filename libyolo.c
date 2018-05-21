@@ -29,7 +29,7 @@ void get_detection_info(image im, int num, float thresh, detection *dets, int cl
 		float prob = thresh;
 		for(j = 0; j < classes; ++j){
 			if (dets[i].prob[j] > prob){
-				strcat(labelstr, names[j]);
+				strcpy(labelstr, names[j]);
 				class = j;
 				prob = dets[i].prob[j];
 				// if (class < 0){
