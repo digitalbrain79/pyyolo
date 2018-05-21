@@ -48,19 +48,9 @@ static PyObject *pyyolo_detect(PyObject *self, PyObject *args)
 		return NULL;
 
 	// convert (copy) PyArrayObject(float32) to float []
-	// option 1
-
-	float data[w*h*c];
-	int k;
-	for (k = 0; k < w*h*c; k++) {
-		data[k] = *((float*) PyArray_GETPTR1(array, k));
-	}
-
-	// option 2
-	// float *data;
-	// data = (float*) PyArray_GETPTR1(array, 0);
+	float *data;
+	data = (float*) PyArray_GETPTR1(array, 0); // data is a ptr to a c array
 	
-    // The below should work, data is a ptr to a c array
 	image img = float_to_image(w, h, c, data);
 	rgbgr_image(img);
 	int num = 0;
@@ -132,14 +122,14 @@ static PyObject *pyyolo_test(PyObject *self, PyObject *args)
 	}
 	free(info);
 
-	if (return_map) {
+	/* if (return_map) {
 		import_array();
 		npy_intp dims[] = {map_size};
 		PyObject *data = PyArray_SimpleNewFromData(1, dims, NPY_FLOAT, feature_map);
 		Py_INCREF(data);
 		dict = Py_BuildValue("{s:O}", "feature_map", data);
 		PyList_SetItem(list, i, dict);
-	}
+	} */
 
 	return list;
 }
@@ -147,8 +137,8 @@ static PyObject *pyyolo_test(PyObject *self, PyObject *args)
 static PyMethodDef pyyolo_methods[] = {
 	{"init",  pyyolo_init, METH_VARARGS, "Initialize YOLO."},
 	{"cleanup",  pyyolo_cleanup, METH_VARARGS, "Cleanup YOLO."},
-	{"detect",  pyyolo_detect, METH_VARARGS, "Test image."},
-	{"test",  pyyolo_test, METH_VARARGS, "Test image."},
+	{"detect",  pyyolo_detect, METH_VARARGS, "Test image (image array)."},
+	{"test",  pyyolo_test, METH_VARARGS, "Test image (image file)."},
 	{NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
