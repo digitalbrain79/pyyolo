@@ -26,17 +26,21 @@ void get_detection_info(image im, int num, float thresh, detection *dets, int cl
 	for(i = 0; i < num; ++i){
 		char labelstr[4096] = {0};
 		int class = -1;
-		float prob;
+		float prob = thresh;
 		for(j = 0; j < classes; ++j){
-			if (dets[i].prob[j] > thresh){
-				if (class < 0){
-					strcat(labelstr, names[j]);
-					class = j;
-					prob = dets[i].prob[j];
-				} else {
-					strcat(labelstr, ", ");
-                    strcat(labelstr, names[j]);
-				}
+			if (dets[i].prob[j] > prob){
+				strcat(labelstr, names[j]);
+				class = j;
+				prob = dets[i].prob[j];
+				// if (class < 0){
+				// 	strcat(labelstr, names[j]);
+				// 	class = j;
+				// 	prob = dets[i].prob[j];
+				// } 
+				// else if {
+				// 	strcat(labelstr, ", ");
+                //  strcat(labelstr, names[j]);
+				// }
 			}
 		}
 		if(class >= 0){
@@ -158,8 +162,6 @@ detection_info **yolo_test(yolo_handle handle, char *filename, float thresh, flo
 	int nboxes = 0; // nboxes = l.w*l.h*l.n
 	detection *dets = get_network_boxes(obj->net, im.w, im.h, thresh, hier_thresh, 0, 1, &nboxes);
 	if (obj->nms) do_nms_sort(dets, nboxes, l.classes, obj->nms);
-	printf("%d nboxes\n", nboxes);
-	printf("%d 2\n", l.w*l.h*l.n);
 	list *output = make_list();
 	get_detection_info(im, nboxes, thresh, dets, l.classes, obj->names, output); 
 	detection_info **info = (detection_info **)list_to_array(output);
