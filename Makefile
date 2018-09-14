@@ -1,5 +1,5 @@
-GPU=1
-CUDNN=1
+GPU=0
+CUDNN=0
 DEBUG=0
 OPENCV=0
 
@@ -20,7 +20,7 @@ OBJDIR=./obj/
 CC=gcc
 AR=ar
 NVCC=nvcc 
-OPTS=-Ofast
+OPTS=-Ofast -fopenmp -lm -lmvec
 COMMON= 
 CFLAGS=-Wall -Wfatal-errors -Wno-unused-result -fPIC
 CFLAGS+=-I./darknet/src -I./darknet/include

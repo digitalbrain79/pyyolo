@@ -5,8 +5,8 @@ import cv2
 
 darknet_path = './darknet'
 datacfg = 'cfg/coco.data'
-cfgfile = 'cfg/tiny-yolo.cfg'
-weightfile = '../tiny-yolo.weights'
+cfgfile = 'cfg/yolov3-tiny.cfg'
+weightfile = '../yolov3-tiny.weights'
 filename = darknet_path + '/data/dog.jpg'
 thresh = 0.45
 hier_thresh = 0.5
