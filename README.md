@@ -2,14 +2,23 @@
 pyyolo is a simple wrapper for YOLO (compatible with YOLOv3).
 
 ## Prerequisites
+Make sure you have python3-distutils and pip3
+sudo apt install python3-pip
+sudo apt-get install python3-distutils
+
 Install open-cv (only apt-get tested):
 [https://docs.opencv.org/3.4.1/d2/de6/tutorial_py_setup_in_ubuntu.html](https://docs.opencv.org/3.4.1/d2/de6/tutorial_py_setup_in_ubuntu.html)
+sudo apt-get install python-opencv
+If receiving unable to fetch some archives run
+sudo apt-get update
+followed again by
+sudo apt-get install python-opencv
 
 To use opencv with Python 3 additionally run (should also install numpy):
 pip3 install opencv-python
 
 ## Building
-1. Clone this repo
+1. Clone this repo and clone https://github.com/Fredrik00/darknet.git into darknet (might alter this later on)
 2. (optional) Set GPU=1 and CUDNN=1 in Makefile to use GPU.
 3. make
 4. rm -rf build
