@@ -1,18 +1,25 @@
 # pyyolo
 pyyolo is a simple wrapper for YOLO (compatible with YOLOv3).
 
+## Prerequisites
+Install open-cv (only apt-get tested):
+[https://docs.opencv.org/3.4.1/d2/de6/tutorial_py_setup_in_ubuntu.html](https://docs.opencv.org/3.4.1/d2/de6/tutorial_py_setup_in_ubuntu.html)
+
+To use opencv with Python 3 additionally run (should also install numpy):
+pip3 install opencv-python
+
 ## Building
-1. git clone --recursive git@github.com:rayhou0710/pyyolo.git
+1. Clone this repo
 2. (optional) Set GPU=1 and CUDNN=1 in Makefile to use GPU.
 3. make
 4. rm -rf build
-5. python setup.py build (use setup_gpu.py for GPU)
-6. sudo python setup.py install (use setup_gpu.py for GPU)
+5. python3 setup.py build (use setup_gpu.py for GPU) (setup_gpy.py has not been modified or tested to build properly)
+6. sudo python3 setup.py install (use setup_gpu.py for GPU)
 
 ## Test
-Edit parameters in example.py
+Edit parameters in example.py if needed
 ```bash
-python example.py
+python3 example.py
 ```
 Result
 ```bash
