@@ -5,7 +5,7 @@ pyyolo is a simple wrapper for YOLO (compatible with YOLOv3).
 Install open-cv:
 [https://docs.opencv.org/3.4.1/d2/de6/tutorial_py_setup_in_ubuntu.html](https://docs.opencv.org/3.4.1/d2/de6/tutorial_py_setup_in_ubuntu.html)
 
-To use opencv with Python 3 install opencv with (should also install numpy):
+To use opencv with Python 3 additionally run (should also install numpy):
 pip3 install opencv-python
 
 ## Building
